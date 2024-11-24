@@ -57,6 +57,8 @@
 #include <unistd.h>
 #endif
 #include <mono/metadata/w32error.h>
+#include "xxtea.h"
+
 
 #define INVALID_ADDRESS 0xffffffff
 
@@ -2085,6 +2087,11 @@ mono_image_open_from_data_with_name (char *data, guint32 data_len, gboolean need
 {
 	MonoImage *result;
 	MONO_ENTER_GC_UNSAFE;
+	if (strstr(name, "Assembly-CSharp.dll") != NULL)
+	{
+		const char* key = "4e7a92e04b162a8f1239af587d6c4b2d";
+		data = xxtea_decrypt(data, data_len, key, &data_len);
+	}
 	MonoDomain *domain = mono_domain_get ();
 	result = mono_image_open_from_data_internal (mono_domain_default_alc (domain), data, data_len, need_copy, status, refonly, FALSE, name, name);
 	MONO_EXIT_GC_UNSAFE;
